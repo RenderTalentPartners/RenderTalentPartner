@@ -7,7 +7,7 @@
   <title>RENDER TALENT PARTNERS</title>
   <meta name="description" content="">
   <meta name="keywords" content="">
-
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <!-- Favicons -->
   <link href="assets/img/favicon.png" rel="icon">
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
@@ -97,34 +97,34 @@
           </div>
 
           <div class="col-lg-6">            
-            <form action="forms/contact.php" method="POST" class="php-email-form" data-aos="fade-up" data-aos-delay="500">
+            <form id="contact-form" class="php-email-form" data-aos="fade-up" data-aos-delay="500">
               <div class="row gy-4">
                 <div class="col-md-6">
                   <input type="text" name="name" class="form-control" placeholder="Your Name" required>
                 </div>
-          
+            
                 <div class="col-md-6">
                   <input type="email" name="email" class="form-control" placeholder="Your Email" required>
                 </div>
-          
+            
                 <div class="col-md-12">
-                  <input type="text" name="subject" class="form-control" placeholder="Subject" required>
+                  <input type="text" name="phone" class="form-control" placeholder="Phone Number" required>
                 </div>
-          
+            
                 <div class="col-md-12">
                   <textarea name="message" class="form-control" rows="4" placeholder="Message" required></textarea>
                 </div>
-          
+            
                 <div class="col-md-12 text-center">
-                  <div class="loading">Loading</div>
-                  <div class="error-message"></div>
-                  <div class="sent-message">Your message has been sent. Thank you!</div>
-          
-                  <button type="submit">Send Message</button>
+                  <div class="loading" style="display: none;">Loading...</div>
+                  <div class="error-message" style="display: none; color: red;"></div>
+                  <div class="sent-message" style="display: none; color: green;">Your message has been sent. Thank you!</div>
+            
+                  <button type="submit" onclick="sendEmail(event)">Send Message</button>
                 </div>
               </div>
             </form>
-          </div><!-- End Contact Form -->
+          </div>
 
         </div>
 
@@ -201,7 +201,77 @@
 
   <!-- Main JS File -->
   <script src="assets/js/main.js"></script>
+  ...
+  <!-- Main JS File -->
+  <script src="assets/js/main.js"></script>
+  
+ <!-- EmailJS Integration -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>
+  // Initialize EmailJS with your Public Key
+  (function() {
+    emailjs.init("FB8b5iFaYDlm6Qji_"); // Replace with your EmailJS Public Key
+  })();
 
-</body>
+  // Function to send email
+  function sendEmail(event) {
+  event.preventDefault(); // Prevent the default form submission
 
-</html>
+  const serviceID = "service_eo1jyvo"; // Replace with your EmailJS service ID
+  const templateID = "template_23ocj7w"; // Replace with your EmailJS template ID
+
+  // Get the loading, error, and success message elements
+  const loading = document.querySelector(".loading");
+  const errorMessage = document.querySelector(".error-message");
+  const sentMessage = document.querySelector(".sent-message");
+
+  // Show the loading message and hide others
+  loading.style.display = "block";
+  errorMessage.style.display = "none";
+  sentMessage.style.display = "none";
+
+  // Get form values
+  const params = {
+    name: document.querySelector('input[name="name"]').value,
+    email: document.querySelector('input[name="email"]').value,
+    phone: document.querySelector('input[name="phone"]').value,
+    message: document.querySelector('textarea[name="message"]').value,
+  };
+
+  // Validate email (similar to PHP validation)
+  if (!validateEmail(params.email)) {
+    loading.style.display = "none";
+    errorMessage.style.display = "block";
+    errorMessage.textContent = "Invalid email address.";
+    return;
+  }
+
+  // Send email using EmailJS
+  emailjs
+    .send(serviceID, templateID, params)
+    .then((response) => {
+      console.log("SUCCESS!", response.status, response.text);
+
+      // Hide the loading message and show the success message
+      loading.style.display = "none";
+      sentMessage.style.display = "block";
+    })
+    .catch((error) => {
+      console.error("FAILED...", error);
+
+      // Hide the loading message and show the error message
+      loading.style.display = "none";
+      errorMessage.style.display = "block";
+      errorMessage.textContent = `Failed to send your message. Error: ${error.text || error}`;
+    });
+}
+
+// Helper function to validate email
+function validateEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+}
+</script>
+  
+  </body>
+  </html>
